@@ -1,24 +1,40 @@
+<?php
+require_once 'connection.php';
+
+
+$user = $pdo->prepare("SELECT * FROM tbl_user");
+$user->execute();
+$selUser= $user->fetch(PDO::FETCH_ASSOC);
+
+$cart = $pdo->prepare("SELECT * FROM tbl_cart a
+JOIN tbl_product b ON a.product_id = b.product_id
+ WHERE a.user_id =?");
+$cart->execute([$selUser['user_id']]);
+$selcart= $cart->fetchAll(PDO::FETCH_ASSOC);
+
+?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Orphic - Your Online Store</title>
+    <meta charset="UTF-8" />
+    <title>My Cart - ORPHIC</title>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #eef1f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         nav {
@@ -27,9 +43,9 @@
         }
 
         .navbar {
-            align-items: center;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin: 0 15rem;
         }
 
@@ -53,37 +69,30 @@
         .searchandcart {
             margin: 0 15rem;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 2rem 15rem;
-            height: 400px;
-            position: relative;
-            color: white;
-            background:
-                linear-gradient(to bottom, #0d1d4bcc, #ffffffcc),
-                url('photos/DesignImage.png') no-repeat center center;
-            background-size: cover;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            gap: 40px;
         }
 
-
         .search-bar {
-            flex: 1;
-            margin-right: 2rem;
+            width: 950px;
+            height: 50px;
         }
 
         .search-bar input[type="text"] {
             width: 100%;
-            height: 50px;
-            padding: 0 20px;
-            border: none;
-            border-radius: 25px;
+            height: 100%;
+            padding: 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
             font-size: 1em;
         }
 
         .cart-icon {
             font-size: 26px;
             cursor: pointer;
-            color: black;
+            color: #333;
             background-color: yellow;
             border-radius: 50%;
             padding: 10px;
@@ -92,92 +101,83 @@
             align-items: center;
             width: 50px;
             height: 50px;
-            z-index: 2;
         }
 
-        .slogan {
-            position: absolute;
-            bottom: 40px;
-            left: 15rem;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: white;
-            line-height: 1.2;
-            text-shadow: 0 2px 1px rgba(0, 0, 0, 100);
+        h2 {
+            margin: 2rem 15rem;
+            font-size: 28px;
+            color: #333;
         }
 
-        .slogan .orange {
-            color: #ff8c00;
-            /* Bright gamer-style orange */
-        }
-
-        section {
+        .cart-container {
             margin: 0 15rem;
-            padding-left: 20px;
+            flex: 1;
         }
 
-        .deals {
-            color: #141d4e;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-
-        main {
-            margin: 0 15rem;
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 20px;
-        }
-
-        .product-card {
-            width: 250px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            padding: 10px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-
-        .product-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
+        .cart-item {
+            background-color: white;
             border-radius: 15px;
-            background-color: #e2e2e2;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .product-title {
+        .cart-item img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-right: 20px;
+        }
+
+        .cart-details {
+            flex: 1;
+        }
+
+        .title {
+            font-size: 18px;
             font-weight: bold;
-            height: 50px;
-            margin-top: 10px;
         }
 
-        .product-price {
-            color: #007bff;
+        .rating {
+            color: gold;
+            margin: 5px 0;
+        }
+
+        .price {
+            font-size: 18px;
             font-weight: bold;
-            margin-top: 5px;
+            color: #111;
         }
 
-        .product-rating {
-            margin-top: 5px;
-        }
-
-        .buy-button,
-        .add-to-cart-button {
-            background-color: #007bff;
+        .checkout-button {
+            padding: 10px 20px;
+            background-color: #3b5b88;
             color: white;
-            padding: 8px 15px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
-            margin-right: 5px;
         }
 
-        .add-to-cart-button {
-            background-color: #28a745;
+        .checkout-button:hover {
+            background-color: #27416a;
+        }
+
+        .cart-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-left: 20px;
+        }
+
+        .remove-button {
+            background-color: #d9534f;
+        }
+
+        .remove-button:hover {
+            background-color: #c9302c;
         }
 
         .orphic-footer {
@@ -304,13 +304,14 @@
 
 <body>
 
+    <!-- Navbar -->
     <nav>
         <div class="navbar">
             <img src="https://c.animaapp.com/maksq8u46pByZ6/img/logo.png" alt="Orphic Logo">
             <div class="navbar-links">
                 <div>
-                    <a href="Home.html">Home</a>
-                    <a href="#product-list">Today's Deals</a>
+                    <a href="Home.php">Home</a>
+                    <a href="Home.html#product-list">Today's Deals</a>
                     <a href="orders.html">Orders</a>
                 </div>
                 <div>
@@ -320,43 +321,62 @@
         </div>
     </nav>
 
+    <!-- Search Bar -->
     <div class="searchandcart">
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Search...">
 
+
         </div>
-        <a href="Cart.html">
+        <a href="Cart.php">
             <span class="cart-icon">&#128722;</span>
         </a>
-        <div class="slogan">
-            <h2>
-                Crafted for <br>
-                Gamers. <span class="orange">Powered.</span><br>
-                for <span class="orange">Victory.</span>
-            </h2>
-        </div>
-
     </div>
 
-    <section class="deals">
-        <h2>Today's deals</h2>
-    </section>
+   <!-- Account Modal -->
+<div id="accountModal">
+  <div id="accountModalContent">
+    <span class="close" onclick="closeAccountModal()">&times;</span>
+    <h2>Your Account</h2>
+    <p><strong>Name:</strong> Joeroz</p>
+    <p><strong>Email:</strong> joerozvicariato@gmail.com</p>
+    <p><strong>Member Since:</strong> 2023-10-26</p>
+    <p><strong>Address:</strong> Lingion, Manolo Fortich Bukidnon</p>
+    <p><strong>Phone:</strong> 09123456789</p>
+    <button onclick="logout()">Log Out</button>
+  </div>
+</div>
 
-    <div id="accountModal">
-        <div id="accountModalContent">
-            <span class="close" onclick="closeAccountModal()">&times;</span>
-            <h2>Your Account</h2>
-            <p><strong>Name:</strong>Joeroz</p>
-            <p><strong>Email:</strong>joerozvicariato@gmail.com</p>
-            <p><strong>Member Since:</strong> 2023-10-26</p>
-            <p><strong>Address:</strong>Lingion, Manolo Fortich Bukidnon</p>
-            <p><strong>Phone:</strong>09123456789</p>
-        </div>
+<!-- JavaScript -->
+<script>
+  function closeAccountModal() {
+    document.getElementById("accountModal").style.display = "none";
+  }
+
+  function logout() {
+    // Optional: clear session/local storage
+    // sessionStorage.clear(); localStorage.clear();
+
+    // Redirect to your existing login form/page
+    window.location.href = "login.php"; // change to your actual login page
+  }
+</script>
+
+  <!-- Orders Section -->
+    <!-- Cart Items -->
+    <h2>My Cart</h2>
+    <div class="cart-container" id="cart-items">
+          <?php foreach ($selcart as $row):?>
+         <div class="product-card">
+                            <img src="photos/<?php echo $row['product_image']?>" alt="<?php echo $row['product_image']?>" class="product-image">
+                            <div class="product-title"><?php echo $row['product_name']?></div>
+                            <div class="product-price">₱<?php echo $row['product_price']?></div>
+                            <div class="product-rating"><?php echo $row['product_rating']?></div>
+                            <button class="add-to-cart-button" onclick="addToCart('${product.id}')">Add to Cart</button>
+                            <button class="buy-button" onclick="goToProductPage('${product.id}')">Buy Now</button>
+         </div>
+         <?php endforeach?>
     </div>
-
-    <main id="product-list">
-        <!-- Product cards will be dynamically added here -->
-    </main>
 
     <!-- Footer -->
     <footer class="orphic-footer">
@@ -419,110 +439,93 @@
             <p>&copy; Orphic2025. All rights reserved.</p>
         </div>
     </footer>
+<script>
+    const container = document.getElementById('cart-items');
+    const searchInput = document.getElementById('searchInput');
+    const accountModal = document.getElementById('accountModal');
+    const openAccountModalButton = document.getElementById('openAccountModal');
+    const closeButton = document.querySelector('#accountModal .close');
 
-    <script>
-        fetch('Home.json')
-            .then(response => response.json())
-            .then(data => {
-                const main = document.getElementById('product-list');
-                data.forEach(product => {
-                    const card = `
-                        <div class="product-card">
-                            <img src="${product.image}" alt="${product.title}" class="product-image">
-                            <div class="product-title">${product.title}</div>
-                            <div class="product-price">₱${product.price}</div>
-                            <div class="product-rating">${product.rating}</div>
-                            <button class="add-to-cart-button" onclick="addToCart('${product.id}')">Add to Cart</button>
-                            <button class="buy-button" onclick="goToProductPage('${product.id}')">Buy Now</button>
-                        </div>
-                    `;
-                    main.innerHTML += card;
-                });
-            });
+    function renderCart(searchQuery = "") {
+        container.innerHTML = '';
 
-        function addToCart(productId) {
-            fetch('Home.json')
-                .then(response => response.json())
-                .then(products => {
-                    const product = products.find(p => p.id === productId);
-                    if (product) {
-                        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                        if (!cart.some(item => item.id === product.id)) {
-                            cart.push(product);
-                            alert(`${product.title} is successfully added to your cart.`);
-                        } else {
-                            alert(`${product.title} is already in your cart.`);
-                        }
-                        localStorage.setItem('cart', JSON.stringify(cart));
-                    }
-                });
+        const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+        const filteredItems = cartItems.filter(item =>
+            item && typeof item.title === 'string' &&
+            item.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+        if (filteredItems.length === 0) {
+            container.innerHTML = '<p>No items found.</p>';
+            return;
         }
 
-        function goToProductPage(productId) {
-            window.location.href = 'product-page.html?id=' + productId;
-        }
-
-        const accountModal = document.getElementById('accountModal');
-        const openAccountModalButton = document.getElementById('openAccountModal');
-
-        openAccountModalButton.addEventListener('click', () => {
-            accountModal.style.display = 'block';
-        });
-
-        // ... (Your existing JavaScript code) ...
-
-        function closeAccountModal() {
-            accountModal.style.display = "none";
-        }
-
-        const closeButton = document.querySelector('#accountModal .close'); //Get the close button using querySelector
-        closeButton.addEventListener('click', closeAccountModal); //Add an event listener to it.
-
-        // ... (rest of your existing JavaScript code) ...
-        //Close the modal when clicking outside of it.
-        window.onclick = function (event) {
-            if (event.target == accountModal) {
-                accountModal.style.display = "none";
-            }
-        }
-
-        let allProducts = [];
-
-    fetch('Home.json')
-        .then(response => response.json())
-        .then(data => {
-            allProducts = data;
-            renderProducts(allProducts);
-        });
-
-    function renderProducts(products) {
-        const main = document.getElementById('product-list');
-        main.innerHTML = ''; // Clear existing products
-
-        products.forEach(product => {
-            const card = `
-                <div class="product-card">
-                    <img src="${product.image}" alt="${product.title}" class="product-image">
-                    <div class="product-title">${product.title}</div>
-                    <div class="product-price">₱${product.price}</div>
-                    <div class="product-rating">${product.rating}</div>
-                    <button class="add-to-cart-button" onclick="addToCart('${product.id}')">Add to Cart</button>
-                    <button class="buy-button" onclick="goToProductPage('${product.id}')">Buy Now</button>
+        const itemsHTML = filteredItems.map((item, index) => `
+            <div class="cart-item" data-index="${index}">
+                <img src="${item.image}" alt="${item.title}">
+                <div class="cart-details">
+                    <div class="title">${item.title}</div>
+                    <div class="rating">${item.rating}</div>
+                    <div class="price">₱${item.price}</div>
                 </div>
-            `;
-            main.innerHTML += card;
+                <div class="cart-actions">
+                    <button class="checkout-button" onclick="checkoutItem(${index})">Check out</button>
+                    <button class="checkout-button remove-button" onclick="removeItem(${index})">Remove</button>
+                </div>
+            </div>
+        `).join('');
+
+        container.innerHTML = itemsHTML;
+    }
+
+    function checkoutItem(index) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const item = cart[index];
+        if (!item) {
+            alert("Item not found.");
+            return;
+        }
+        localStorage.setItem('checkoutItem', JSON.stringify(item));
+        window.location.href = `product-page.html?id=${encodeURIComponent(item.id)}`;
+    }
+
+    function removeItem(index) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (index >= 0 && index < cart.length) {
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart(searchInput?.value.trim() || '');
+        }
+    }
+
+    // Initial render
+    renderCart();
+
+    // Search event
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            renderCart(searchInput.value.trim());
         });
     }
 
-        document.getElementById('searchInput').addEventListener('input', function () {
-        const query = this.value.toLowerCase();
-        const filtered = allProducts.filter(product =>
-            product.title.toLowerCase().includes(query)
-        );
-        renderProducts(filtered);
-    });
-    </script>
+    // Modal: Open
+    if (openAccountModalButton && accountModal) {
+        openAccountModalButton.addEventListener('click', () => {
+            accountModal.style.display = 'block';
+        });
+    }
 
-</body>
+    // Modal: Close
+    if (closeButton && accountModal) {
+        closeButton.addEventListener('click', () => {
+            accountModal.style.display = 'none';
+        });
 
-</html>
+        window.addEventListener('click', (event) => {
+            if (event.target === accountModal) {
+                accountModal.style.display = 'none';
+            }
+        });
+    }
+</script>

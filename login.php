@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="globals.css" />
     <link rel="stylesheet" href="login.css" />
-    <script>
+    <!-- <script>
       // Function to handle login
       function handleLogin(event) {
         event.preventDefault();  // Prevent form from submitting the default way
@@ -60,7 +60,7 @@
 
         checkLoginStatus(); // Optional: Check login status if user is already logged in
       });
-    </script>
+    </script> -->
   </head>
   <body>
     <div class="log-inpage">
@@ -85,13 +85,13 @@
           <div class="rectangle"></div>
           <img class="mask-group-2" src="https://c.animaapp.com/mabuwas1L7eP4e/img/mask-group-1.png" />
           <div class="login-box">
-            <form id="loginForm" class="overlap-group-2">
+            <form  action="auth.php" method="post" id="loginForm" class="overlap-group-2">
               <div class="overlap-2">
-                <input type="text" id="email" class="rectangle-2" placeholder="Email / Phone number" required />
+                <input type="text" name="username" id="email" class="rectangle-2" placeholder="Email / Phone number" required />
               </div>
               
               <div class="overlap-3">
-                <input type="password" id="password" class="rectangle-3" placeholder="Password" required />
+                <input type="password" name="password" id="password" class="rectangle-3" placeholder="Password" required />
                 <img class="image-4" src="https://c.animaapp.com/mabuwas1L7eP4e/img/image-1.png" />
               </div>
 

@@ -303,8 +303,8 @@
       <img src="https://c.animaapp.com/maksq8u46pByZ6/img/logo.png" alt="Orphic Logo">
       <div class="navbar-links">
         <div>
-          <a href="Home.html">Home</a>
-          <a href="Home.html#product-list">Today's Deals</a>
+          <a href="Home.php">Home</a>
+          <a href="Home.php#product-list">Today's Deals</a>
           <a href="orders.html">Orders</a>
         </div>
         <div>
@@ -318,24 +318,41 @@
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="Search...">
     </div>
-    <a href="Cart.html">
+    <a href="Cart.php">
       <span class="cart-icon">&#128722;</span>
     </a>
   </div>
 
   <!-- Page Header -->
 
-  <div id="accountModal">
-    <div id="accountModalContent">
-      <span class="close" onclick="closeAccountModal()">&times;</span>
-      <h2>Your Account</h2>
-      <p><strong>Name:</strong>Joeroz</p>
-      <p><strong>Email:</strong>joerozvicariato@gmail.com</p>
-      <p><strong>Member Since:</strong> 2023-10-26</p>
-      <p><strong>Address:</strong>Lingion, Manolo Fortich Bukidnon</p>
-      <p><strong>Phone:</strong>09123456789</p>
-    </div>
+  <!-- Account Modal -->
+<div id="accountModal">
+  <div id="accountModalContent">
+    <span class="close" onclick="closeAccountModal()">&times;</span>
+    <h2>Your Account</h2>
+    <p><strong>Name:</strong> Joeroz</p>
+    <p><strong>Email:</strong> joerozvicariato@gmail.com</p>
+    <p><strong>Member Since:</strong> 2023-10-26</p>
+    <p><strong>Address:</strong> Lingion, Manolo Fortich Bukidnon</p>
+    <p><strong>Phone:</strong> 09123456789</p>
+    <button onclick="logout()">Log Out</button>
   </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+  function closeAccountModal() {
+    document.getElementById("accountModal").style.display = "none";
+  }
+
+  function logout() {
+    // Optional: clear session/local storage
+    // sessionStorage.clear(); localStorage.clear();
+
+    // Redirect to your existing login form/page
+    window.location.href = "login.php"; // change to your actual login page
+  }
+</script>
 
   <!-- Orders Section -->
 
