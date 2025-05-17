@@ -288,18 +288,20 @@
   }
   
   .log-inpage .text-wrapper-5 {
-    position: absolute;
-    top: 10px;
-    left: 117px;
-    font-family: "Montserrat", Helvetica;
-    font-weight: 500;
-    color: #ffffff;
-    font-size: 16px;
-    text-align: justify;
-    letter-spacing: 0;
-    line-height: normal;
-  }
-  
+  position: absolute;
+  top: 10px;
+  left: 117px;
+  font-family: "Montserrat", Helvetica, sans-serif;
+  font-weight: 500;
+  color: #ffffff;
+  font-size: 16px;
+  text-align: center; /* usually better than justify for single words */
+  letter-spacing: 0.5px; /* optional for better spacing */
+  line-height: 1.5;
+  cursor: pointer; /* make it feel clickable */
+  z-index: 10; /* ensures it’s on top */
+}
+
   .log-inpage .overlap-5 {
     position: absolute;
     width: 119px;

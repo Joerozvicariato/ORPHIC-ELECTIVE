@@ -1,3 +1,13 @@
+<?php
+require_once 'connection.php';
+if(session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -115,9 +125,11 @@
               
               <div class="text-wrapper-8">Log In</div>
               <div class="text-wrapper-9">Forgot Password</div>
-              <p class="don-t-have-account">
-                <span class="span">Don't have account? </span> <span class="text-wrapper-10">Sign Up</span>
-              </p>
+             <p class="don-t-have-account">
+                  <span class="span">Don't have account? </span>
+             <a href="Sign.php"><span class="text-wrapper-10">Sign Up</span></a>
+               </p>
+
             </form>
           </div>
           <img class="image-5" src="https://c.animaapp.com/mabuwas1L7eP4e/img/image-5-1.png" />

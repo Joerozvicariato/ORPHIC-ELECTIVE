@@ -1,11 +1,20 @@
 <?php
 require_once "connection.php";
 
+if (!isset($_SESSION['username'])|| !isset($_SESSION['user_id'])) {
+    header("Location: login.php"); // Redirect if not logged in
+    exit();
+}
+echo "Welcome, " . htmlspecialchars($_SESSION['user_id']) . "!";
+
+
 $product = $pdo->prepare("SELECT * FROM tbl_product");
 $product->execute();
 $selProduct= $product->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<script>src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+</script>
 <!DOCTYPE html>
 <html>
 
@@ -457,107 +466,25 @@ $selProduct= $product->fetchAll(PDO::FETCH_ASSOC);
     </footer>
 
     <script>
-    //     fetch('Home.json')
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             const main = document.getElementById('product-list');
-    //             data.forEach(product => {
-    //                 const card = `
-    //                     <div class="product-card">
-    //                         <img src="${product.image}" alt="${product.title}" class="product-image">
-    //                         <div class="product-title">${product.title}</div>
-    //                         <div class="product-price">₱${product.price}</div>
-    //                         <div class="product-rating">${product.rating}</div>
-    //                         <button class="add-to-cart-button" onclick="addToCart('${product.id}')">Add to Cart</button>
-    //                         <button class="buy-button" onclick="goToProductPage('${product.id}')">Buy Now</button>
-    //                     </div>
-    //                 `;
-    //                 main.innerHTML += card;
-    //             });
-    //         });
+    function addToCart(productId) {
+  fetch('addToCart.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'productId=' + encodeURIComponent(productId) // Make sure the key is "productId"
+  })
+  .then(response => response.text())
+  .then(data => {
+    alert(data); // You can replace this with a toast notification
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
 
-    //     function addToCart(productId) {
-    //         fetch('Home.json')
-    //             .then(response => response.json())
-    //             .then(products => {
-    //                 const product = products.find(p => p.id === productId);
-    //                 if (product) {
-    //                     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    //                     if (!cart.some(item => item.id === product.id)) {
-    //                         cart.push(product);
-    //                         alert(`${product.title} is successfully added to your cart.`);
-    //                     } else {
-    //                         alert(`${product.title} is already in your cart.`);
-    //                     }
-    //                     localStorage.setItem('cart', JSON.stringify(cart));
-    //                 }
-    //             });
-    //     }
+</script>
 
-    //     function goToProductPage(productId) {
-    //         window.location.href = 'product-page.html?id=' + productId;
-    //     }
-
-    //     const accountModal = document.getElementById('accountModal');
-    //     const openAccountModalButton = document.getElementById('openAccountModal');
-
-    //     openAccountModalButton.addEventListener('click', () => {
-    //         accountModal.style.display = 'block';
-    //     });
-
-    //     // ... (Your existing JavaScript code) ...
-
-    //     function closeAccountModal() {
-    //         accountModal.style.display = "none";
-    //     }
-
-    //     const closeButton = document.querySelector('#accountModal .close'); //Get the close button using querySelector
-    //     closeButton.addEventListener('click', closeAccountModal); //Add an event listener to it.
-
-    //     // ... (rest of your existing JavaScript code) ...
-    //     //Close the modal when clicking outside of it.
-    //     window.onclick = function (event) {
-    //         if (event.target == accountModal) {
-    //             accountModal.style.display = "none";
-    //         }
-    //     }
-
-    //     let allProducts = [];
-
-    // fetch('Home.json')
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         allProducts = data;
-    //         renderProducts(allProducts);
-    //     });
-
-    // function renderProducts(products) {
-    //     const main = document.getElementById('product-list');
-    //     main.innerHTML = ''; // Clear existing products
-
-    //     products.forEach(product => {
-    //         const card = `
-    //             <div class="product-card">
-    //                 <img src="${product.image}" alt="${product.title}" class="product-image">
-    //                 <div class="product-title">${product.title}</div>
-    //                 <div class="product-price">₱${product.price}</div>
-    //                 <div class="product-rating">${product.rating}</div>
-    //                 <button class="add-to-cart-button" onclick="addToCart('${product.id}')">Add to Cart</button>
-    //                 <button class="buy-button" onclick="goToProductPage('${product.id}')">Buy Now</button>
-    //             </div>
-    //         `;
-    //         main.innerHTML += card;
-    //     });
-    // }
-
-    //     document.getElementById('searchInput').addEventListener('input', function () {
-    //     const query = this.value.toLowerCase();
-    //     const filtered = allProducts.filter(product =>
-    //         product.title.toLowerCase().includes(query)
-    //     );
-    //     renderProducts(filtered);
-    // });
-    </script>
 
 </body>
 

@@ -1,30 +1,23 @@
 <?php
 session_start();
-require_once 'connection.php'; // This defines $pdo
+require_once 'connection.php'; // contains $pdo (use mysqli if different)
 
-// Check if form submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Check if fields exist
-    if (!isset($_POST['username']) || !isset($_POST['password'])) {
-        die("Username or password not provided.");
-    }
-
     $username = $_POST['username'];
-    $password = $_POST['password']; // Match stored format
+    $password = $_POST['password'];
 
-    $stmt = $pdo->prepare("SELECT * FROM tbl_user WHERE user_name = ? AND user_password = ?");
-    $stmt->execute([$username, $password]);
-
+    // Prepared statement to avoid SQL injection
+    $stmt = $pdo->prepare("SELECT * FROM tbl_user WHERE user_name = ?");
+    $stmt->execute([$username]);
     $user = $stmt->fetch();
 
-    if ($user) {
-        $_SESSION['username'] = $user['username'];
-        echo "Login successful. Welcome, " . htmlspecialchars($user['username']) . "!";
-        header("Location: Home.php"); // optional redirect
+    if ($user && $password == $user['user_password']) { // You can use password_verify() if password is hashed
+        $_SESSION['username'] = $user['user_name']; // Create session
+        $_SESSION['user_id'] = $user['user_id'];    // Optional: store ID
+        header("Location: Home.php"); // Redirect to a logged-in page
+        exit();
     } else {
         echo "Invalid username or password.";
     }
-} else {
-    echo "Invalid request method.";
 }
 ?>

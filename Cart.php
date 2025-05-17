@@ -332,6 +332,65 @@ $selcart= $cart->fetchAll(PDO::FETCH_ASSOC);
             <span class="cart-icon">&#128722;</span>
         </a>
     </div>
+    <div><br>
+<h2>My Cart</h2>
+    <div class="cart-container" id="cart-items">
+        <form method="post" action="Cart.php">
+        <table style="width:100%; background:white; border-radius:12px; box-shadow:2px 2px 5px rgba(0,0,0,0.08); border-collapse:separate; border-spacing:0 15px;">
+            <thead>
+                <tr style="background:#f5f7fa;">
+                    <th style="padding:12px; text-align:left;">Image</th>
+                    <th style="padding:12px; text-align:left;">Product Name</th>
+                    <th style="padding:12px; text-align:left;">Price</th>
+                    <th style="padding:12px; text-align:left;">Rating</th>
+                    <th style="padding:12px; text-align:left;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                // Handle delete action
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_cart_id'])) {
+                    $deleteStmt = $pdo->prepare("DELETE FROM tbl_cart WHERE cart_id = ?");
+                    $deleteStmt->execute([$_POST['delete_cart_id']]);
+                    echo "<script>window.location='Cart.php';</script>";
+                    exit;
+                }
+                // Handle checkout action
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
+                    // Example: Remove all items from cart for this user
+                    $checkoutStmt = $pdo->prepare("DELETE FROM tbl_cart WHERE user_id = ?");
+                    $checkoutStmt->execute([$selUser['user_id']]);
+                    echo "<script>alert('Checkout successful!');window.location='Cart.php';</script>";
+                    exit;
+                }
+                $total = 0;
+                foreach ($selcart as $row):
+                    $total += $row['product_price'];
+                ?>
+                <tr style="background:#fff;">
+                    <td style="padding:12px;">
+                        <img src="photos/<?php echo htmlspecialchars($row['product_image']); ?>" alt="<?php echo htmlspecialchars($row['product_name']); ?>" style="width:80px; height:80px; object-fit:contain; border-radius:8px;">
+                    </td>
+                    <td style="padding:12px; font-weight:600;"><?php echo htmlspecialchars($row['product_name']); ?></td>
+                    <td style="padding:12px; color:#111; font-weight:bold;">₱<?php echo htmlspecialchars($row['product_price']); ?></td>
+                    <td style="padding:12px; color:gold;"><?php echo htmlspecialchars($row['product_rating']); ?></td>
+                    <td style="padding:12px;">
+                        <button type="submit" name="delete_cart_id" value="<?php echo $row['cart_id']; ?>" class="checkout-button remove-button" onclick="return confirm('Remove this item?')">Delete</button>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:18px; font-weight:bold;">Total: ₱<?php echo number_format($total, 2); ?></div>
+            <?php if (count($selcart) > 0): ?>
+                <button type="submit" name="checkout" class="checkout-button" onclick="return confirm('Proceed to checkout?')">Checkout</button>
+            <?php endif; ?>
+        </div>
+        </form>
+    </div>
+
+    </div>
 
    <!-- Account Modal -->
 <div id="accountModal">
@@ -348,35 +407,10 @@ $selcart= $cart->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <!-- JavaScript -->
-<script>
-  function closeAccountModal() {
-    document.getElementById("accountModal").style.display = "none";
-  }
-
-  function logout() {
-    // Optional: clear session/local storage
-    // sessionStorage.clear(); localStorage.clear();
-
-    // Redirect to your existing login form/page
-    window.location.href = "login.php"; // change to your actual login page
-  }
-</script>
 
   <!-- Orders Section -->
     <!-- Cart Items -->
-    <h2>My Cart</h2>
-    <div class="cart-container" id="cart-items">
-          <?php foreach ($selcart as $row):?>
-         <div class="product-card">
-                            <img src="photos/<?php echo $row['product_image']?>" alt="<?php echo $row['product_image']?>" class="product-image">
-                            <div class="product-title"><?php echo $row['product_name']?></div>
-                            <div class="product-price">₱<?php echo $row['product_price']?></div>
-                            <div class="product-rating"><?php echo $row['product_rating']?></div>
-                            <button class="add-to-cart-button" onclick="addToCart('${product.id}')">Add to Cart</button>
-                            <button class="buy-button" onclick="goToProductPage('${product.id}')">Buy Now</button>
-         </div>
-         <?php endforeach?>
-    </div>
+    
 
     <!-- Footer -->
     <footer class="orphic-footer">
@@ -439,93 +473,3 @@ $selcart= $cart->fetchAll(PDO::FETCH_ASSOC);
             <p>&copy; Orphic2025. All rights reserved.</p>
         </div>
     </footer>
-<script>
-    const container = document.getElementById('cart-items');
-    const searchInput = document.getElementById('searchInput');
-    const accountModal = document.getElementById('accountModal');
-    const openAccountModalButton = document.getElementById('openAccountModal');
-    const closeButton = document.querySelector('#accountModal .close');
-
-    function renderCart(searchQuery = "") {
-        container.innerHTML = '';
-
-        const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-
-        const filteredItems = cartItems.filter(item =>
-            item && typeof item.title === 'string' &&
-            item.title.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-
-        if (filteredItems.length === 0) {
-            container.innerHTML = '<p>No items found.</p>';
-            return;
-        }
-
-        const itemsHTML = filteredItems.map((item, index) => `
-            <div class="cart-item" data-index="${index}">
-                <img src="${item.image}" alt="${item.title}">
-                <div class="cart-details">
-                    <div class="title">${item.title}</div>
-                    <div class="rating">${item.rating}</div>
-                    <div class="price">₱${item.price}</div>
-                </div>
-                <div class="cart-actions">
-                    <button class="checkout-button" onclick="checkoutItem(${index})">Check out</button>
-                    <button class="checkout-button remove-button" onclick="removeItem(${index})">Remove</button>
-                </div>
-            </div>
-        `).join('');
-
-        container.innerHTML = itemsHTML;
-    }
-
-    function checkoutItem(index) {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const item = cart[index];
-        if (!item) {
-            alert("Item not found.");
-            return;
-        }
-        localStorage.setItem('checkoutItem', JSON.stringify(item));
-        window.location.href = `product-page.html?id=${encodeURIComponent(item.id)}`;
-    }
-
-    function removeItem(index) {
-        const cart = JSON.parse(localStorage.getItem('cart')) || [];
-        if (index >= 0 && index < cart.length) {
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            renderCart(searchInput?.value.trim() || '');
-        }
-    }
-
-    // Initial render
-    renderCart();
-
-    // Search event
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            renderCart(searchInput.value.trim());
-        });
-    }
-
-    // Modal: Open
-    if (openAccountModalButton && accountModal) {
-        openAccountModalButton.addEventListener('click', () => {
-            accountModal.style.display = 'block';
-        });
-    }
-
-    // Modal: Close
-    if (closeButton && accountModal) {
-        closeButton.addEventListener('click', () => {
-            accountModal.style.display = 'none';
-        });
-
-        window.addEventListener('click', (event) => {
-            if (event.target === accountModal) {
-                accountModal.style.display = 'none';
-            }
-        });
-    }
-</script>

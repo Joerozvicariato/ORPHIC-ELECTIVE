@@ -1,4 +1,17 @@
 <?php
+if(session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (isset($_SESSION['userId'])) {
+    // User is logged in, you can access session variables
+    $username = $_SESSION['userId'];
+} else {
+    // User is not logged in
+    $username = null;
+}
+
+
 $host = 'localhost';
 $db   = 'database_jorox';
 $user = 'root';
