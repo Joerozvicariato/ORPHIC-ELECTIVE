@@ -334,65 +334,73 @@ $selcart= $cart->fetchAll(PDO::FETCH_ASSOC);
     </div>
     <div><br>
 <h2>My Cart</h2>
-    <div class="cart-container" id="cart-items">
-        <form method="post" action="Cart.php">
-        <table style="width:100%; background:white; border-radius:12px; box-shadow:2px 2px 5px rgba(0,0,0,0.08); border-collapse:separate; border-spacing:0 15px;">
-            <thead>
-                <tr style="background:#f5f7fa;">
-                    <th style="padding:12px; text-align:left;">Image</th>
-                    <th style="padding:12px; text-align:left;">Product Name</th>
-                    <th style="padding:12px; text-align:left;">Price</th>
-                    <th style="padding:12px; text-align:left;">Rating</th>
-                    <th style="padding:12px; text-align:left;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // Handle delete action
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_cart_id'])) {
-                    $deleteStmt = $pdo->prepare("DELETE FROM tbl_cart WHERE cart_id = ?");
-                    $deleteStmt->execute([$_POST['delete_cart_id']]);
-                    echo "<script>window.location='Cart.php';</script>";
-                    exit;
-                }
-                // Handle checkout action
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
-                    // Example: Remove all items from cart for this user
-                    $checkoutStmt = $pdo->prepare("DELETE FROM tbl_cart WHERE user_id = ?");
-                    $checkoutStmt->execute([$selUser['user_id']]);
-                    echo "<script>alert('Checkout successful!');window.location='Cart.php';</script>";
-                    exit;
-                }
-                $total = 0;
-                foreach ($selcart as $row):
-                    $total += $row['product_price'];
-                ?>
-                <tr style="background:#fff;">
-                    <td style="padding:12px;">
-                        <img src="photos/<?php echo htmlspecialchars($row['product_image']); ?>" alt="<?php echo htmlspecialchars($row['product_name']); ?>" style="width:80px; height:80px; object-fit:contain; border-radius:8px;">
-                    </td>
-                    <td style="padding:12px; font-weight:600;"><?php echo htmlspecialchars($row['product_name']); ?></td>
-                    <td style="padding:12px; color:#111; font-weight:bold;">₱<?php echo htmlspecialchars($row['product_price']); ?></td>
-                    <td style="padding:12px; color:gold;"><?php echo htmlspecialchars($row['product_rating']); ?></td>
-                    <td style="padding:12px;">
-                        <button type="submit" name="delete_cart_id" value="<?php echo $row['cart_id']; ?>" class="checkout-button remove-button" onclick="return confirm('Remove this item?')">Delete</button>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:18px; font-weight:bold;">Total: ₱<?php echo number_format($total, 2); ?></div>
-            <?php if (count($selcart) > 0): ?>
-                <button type="submit" name="checkout" class="checkout-button" onclick="return confirm('Proceed to checkout?')">Checkout</button>
-            <?php endif; ?>
-        </div>
-        </form>
+<div class="cart-container" id="cart-items">
+    <form method="post" action="Cart.php">
+    <table style="width:100%; background:white; border-radius:12px; box-shadow:2px 2px 5px rgba(0,0,0,0.08); border-collapse:separate; border-spacing:0 15px;">
+        <thead>
+            <tr style="background:#f5f7fa;">
+                <th style="padding:12px; text-align:left;">Image</th>
+                <th style="padding:12px; text-align:left;">Product Name</th>
+                <th style="padding:12px; text-align:left;">Price</th>
+                <th style="padding:12px; text-align:left;">Rating</th>
+                <th style="padding:12px; text-align:left;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Handle delete action
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_cart_id'])) {
+                $deleteStmt = $pdo->prepare("DELETE FROM tbl_cart WHERE cart_id = ?");
+                $deleteStmt->execute([$_POST['delete_cart_id']]);
+                echo "<script>window.location='Cart.php';</script>";
+                exit;
+            }
+            // Handle single item checkout
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout_cart_id'])) {
+                // Example: Remove only the checked out item from cart
+                $checkoutStmt = $pdo->prepare("DELETE FROM tbl_cart WHERE cart_id = ?");
+                $checkoutStmt->execute([$_POST['checkout_cart_id']]);
+                echo "<script>alert('Item checked out!');window.location='Cart.php';</script>";
+                exit;
+            }
+            // Handle checkout all action
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['checkout'])) {
+                $checkoutStmt = $pdo->prepare("DELETE FROM tbl_cart WHERE user_id = ?");
+                $checkoutStmt->execute([$selUser['user_id']]);
+                echo "<script>alert('Checkout successful!');window.location='Cart.php';</script>";
+                exit;
+            }
+            $total = 0;
+            foreach ($selcart as $row):
+                $total += $row['product_price'];
+            ?>
+            <tr style="background:#fff;">
+                <td style="padding:12px;">
+                    <img src="photos/<?php echo htmlspecialchars($row['product_image']); ?>" alt="<?php echo htmlspecialchars($row['product_name']); ?>" style="width:80px; height:80px; object-fit:contain; border-radius:8px;">
+                </td>
+                <td style="padding:12px; font-weight:600;"><?php echo htmlspecialchars($row['product_name']); ?></td>
+                <td style="padding:12px; color:#111; font-weight:bold;">₱<?php echo htmlspecialchars($row['product_price']); ?></td>
+                <td style="padding:12px; color:gold;"><?php echo htmlspecialchars($row['product_rating']); ?></td>
+                <td style="padding:12px;">
+                    <button type="submit" name="delete_cart_id" value="<?php echo $row['cart_id']; ?>" class="checkout-button remove-button" onclick="return confirm('Remove this item?')">Delete</button>
+                    <button type="submit" name="checkout_cart_id" value="<?php echo $row['cart_id']; ?>" class="checkout-button" style="background-color:#28a745; margin-left:8px;" onclick="return confirm('Check out this item only?')">Check Out</button>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:18px; font-weight:bold;">Total: ₱<?php echo number_format($total, 2); ?></div>
+        <?php if (count($selcart) > 0): ?>
+            <button type="submit" name="checkout" class="checkout-button" onclick="return confirm('Proceed to checkout?')">Checkout All</button>
+        <?php endif; ?>
     </div>
+    </form>
+</div>
 
-    </div>
+</div>
 
-   <!-- Account Modal -->
+<!-- Account Modal -->
 <div id="accountModal">
   <div id="accountModalContent">
     <span class="close" onclick="closeAccountModal()">&times;</span>

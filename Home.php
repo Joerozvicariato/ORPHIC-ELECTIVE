@@ -336,12 +336,24 @@ $selProduct= $product->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </nav>
-
     <div class="searchandcart">
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search...">
-
+            <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterProducts()">
         </div>
+        <script>
+        function filterProducts() {
+            var input = document.getElementById('searchInput').value.toLowerCase();
+            var cards = document.querySelectorAll('.product-card');
+            cards.forEach(function(card) {
+                var title = card.querySelector('.product-title').textContent.toLowerCase();
+                if (title.includes(input)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        </script>
         <a href="Cart.php">
             <span class="cart-icon">&#128722;</span>
         </a>
