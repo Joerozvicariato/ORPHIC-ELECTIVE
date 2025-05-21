@@ -305,7 +305,7 @@
         <div>
           <a href="Home.php">Home</a>
           <a href="Home.php#product-list">Today's Deals</a>
-          <a href="orders.html">Orders</a>
+          <a href="orders.php">Orders</a>
         </div>
         <div>
           <a href="#" id="openAccountModal">You</a>

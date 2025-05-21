@@ -336,6 +336,12 @@ $selProduct= $product->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </nav>
+    <script>
+        document.getElementById('openAccountModal').onclick = function(e) {
+            e.preventDefault();
+            document.getElementById('accountModal').style.display = 'block';
+        };
+    </script>
     <div class="searchandcart">
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterProducts()">
