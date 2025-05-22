@@ -42,7 +42,7 @@
               
          <!-- Sign Up Button -->
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
-  <button type="submit" style="display: flex; align-items: center; justify-content: center; width: 150px; height: 45px; background-color: #3a86ff; border: none; border-radius: 6px; cursor: pointer; margin-top: 125px;">
+  <button type="submit" style="display: flex; align-items: center; justify-content: center; width: 150px; height: 45px; background-color: #3a86ff; border: none; border-radius: 6px; cursor: pointer; margin-top: -250px;">
     <div style="color: white; font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 600; text-align: center;">
       Sign Up
     </div>
